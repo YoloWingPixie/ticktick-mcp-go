@@ -55,7 +55,7 @@ func (c *Client) do(ctx context.Context, method, path string, body io.Reader) ([
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 10 MiB cap to prevent memory exhaustion from unexpected large responses
 	data, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20))

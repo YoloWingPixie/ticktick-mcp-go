@@ -16,9 +16,9 @@ const (
 )
 
 var (
-	hexIDPattern   = regexp.MustCompile(`^[a-f0-9]{24}$`)
-	profilePattern = regexp.MustCompile(`^[a-z0-9_-]{1,32}$`)
-	validPriorities  = map[int]bool{0: true, 1: true, 3: true, 5: true}
+	hexIDPattern    = regexp.MustCompile(`^[a-f0-9]{24}$`)
+	profilePattern  = regexp.MustCompile(`^[a-z0-9_-]{1,32}$`)
+	validPriorities = map[int]bool{0: true, 1: true, 3: true, 5: true}
 )
 
 type ValidationError struct {

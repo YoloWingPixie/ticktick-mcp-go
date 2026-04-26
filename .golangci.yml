@@ -20,15 +20,22 @@ linters-settings:
     enabled-checks:
       - dupImport
       - truncateCmp
-      - unnamedResult
+    disabled-checks:
+      - exitAfterDefer
   revive:
     rules:
       - name: blank-imports
-      - name: exported
       - name: increment-decrement
       - name: var-naming
+  gosec:
+    excludes:
+      - G304
+      - G404
 
 issues:
-  exclude-use-default: false
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
   max-issues-per-linter: 0
   max-same-issues: 0

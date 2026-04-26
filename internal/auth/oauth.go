@@ -79,7 +79,7 @@ func CallbackServer(ctx context.Context, addr, path string) (string, string, err
 			return
 		}
 
-		fmt.Fprint(w, "Authorization successful. You may close this window.")
+		_, _ = fmt.Fprint(w, "Authorization successful. You may close this window.")
 		ch <- result{code: code, state: state}
 	})
 
@@ -96,7 +96,7 @@ func CallbackServer(ctx context.Context, addr, path string) (string, string, err
 		}
 	}()
 
-	defer srv.Shutdown(context.Background())
+	defer func() { _ = srv.Shutdown(context.Background()) }()
 
 	select {
 	case r := <-ch:

@@ -50,7 +50,7 @@ type Server struct {
 
 	projectCache *lru.Cache[string, cacheEntry[[]ticktick.Project]]
 	dataCache    *lru.Cache[string, cacheEntry[*ticktick.ProjectData]]
-	sflight singleflight.Group
+	sflight      singleflight.Group
 }
 
 type Config struct {

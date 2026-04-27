@@ -1,4 +1,4 @@
-module github.com/zachshepherd/ticktick-mcp-go
+module github.com/YoloWingPixie/ticktick-mcp-go
 
 go 1.25.0
 

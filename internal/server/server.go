@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/zachshepherd/ticktick-mcp-go/internal/ticktick"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/ticktick"
 )
 
 type Mode int

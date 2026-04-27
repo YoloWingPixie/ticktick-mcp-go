@@ -6,8 +6,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/zachshepherd/ticktick-mcp-go/internal/safety"
-	"github.com/zachshepherd/ticktick-mcp-go/internal/ticktick"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/safety"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/ticktick"
 )
 
 func (s *Server) handleGetTask(ctx context.Context, _ *mcp.CallToolRequest, input GetTaskInput) (*mcp.CallToolResult, any, error) {

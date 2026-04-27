@@ -2,12 +2,10 @@
 
 ## Overview
 
-The project produces two binaries:
+The project produces a single binary, `ticktick-mcp`, with two modes:
 
-- **ticktick-mcp** -- the MCP server. Communicates over stdio, never opens a network listener. This is the binary Claude Desktop launches.
-- **ticktick-auth** -- a one-shot OAuth2 helper. Starts a temporary localhost HTTP server to receive the OAuth callback, exchanges the code for tokens, and stores them in the OS keyring. Run once per profile, then never again unless the token expires without a refresh token.
-
-Separating the two means the MCP binary has no reason to call `net.Listen`, reducing its attack surface.
+- **`ticktick-mcp`** (default) -- the MCP server. Communicates over stdio, launched by Claude Desktop.
+- **`ticktick-mcp auth`** -- a one-shot OAuth2 helper. Starts a temporary localhost HTTP server to receive the OAuth callback, exchanges the code for tokens, and stores them in the OS keyring. Run once per profile, then never again unless the token expires without a refresh token.
 
 ## Package Dependency Graph
 
@@ -15,9 +13,6 @@ Separating the two means the MCP binary has no reason to call `net.Listen`, redu
 cmd/ticktick-mcp ──┬──> internal/server ──┬──> internal/ticktick
                    │                      └──> internal/safety
                    └──> internal/auth
-
-cmd/ticktick-auth ──┬──> internal/auth
-                    └──> internal/safety
 ```
 
 All imports flow downward. No package imports a sibling at the same level.
@@ -25,10 +20,7 @@ All imports flow downward. No package imports a sibling at the same level.
 ## Package Responsibilities
 
 ### `cmd/ticktick-mcp`
-Parses flags, loads tokens from the keyring, builds the HTTP client stack (rate limiter, OAuth2 transport), selects the capability mode, and starts the MCP server on stdio.
-
-### `cmd/ticktick-auth`
-Parses flags, generates a PKCE challenge, opens the browser to the TickTick authorization URL, runs a temporary callback server, exchanges the authorization code for tokens, and persists them to the keyring.
+Entry point. Dispatches to `auth` subcommand or the MCP server. For the server path: parses flags, loads tokens from the keyring, builds the HTTP client stack (rate limiter, OAuth2 transport), selects the capability mode, and starts the MCP server on stdio. For the auth path: generates a PKCE challenge, opens the browser, runs a temporary callback server, exchanges the code, and persists tokens.
 
 ### `internal/server`
 The MCP layer. Registers tools based on the active capability mode, handles tool dispatch, manages the LRU cache and singleflight deduplication, and coordinates concurrent project data fetches. Contains all handler logic organized by domain: tasks, projects, filters, and batch operations.
@@ -44,13 +36,11 @@ Input validation (IDs, titles, content, batch sizes, profile names) and HTTP tra
 
 ## Security Model
 
-**Token lifecycle.** `ticktick-auth` performs the OAuth2 PKCE flow and stores the resulting tokens in the OS keyring (or encrypted file fallback). `ticktick-mcp` loads tokens at startup and uses a `PersistingTokenSource` that transparently refreshes expired tokens and writes them back. The MCP binary never handles raw authorization codes.
+**Token lifecycle.** `ticktick-mcp auth` performs the OAuth2 PKCE flow and stores the resulting tokens in the OS keyring (or encrypted file fallback). The server loads tokens at startup and uses a `PersistingTokenSource` that transparently refreshes expired tokens and writes them back.
 
 **Capability modes.** The server registers tools in tiers: read-only (12 tools), read-write (+8 tools), or read-write-destructive (+2 tools). Destructive tools require an explicit `confirmed=true` parameter. The default mode is read-write.
 
 **Input validation.** All tool inputs are validated before reaching the API client. Project and task IDs must match `^[a-f0-9]{24}$`. String fields have length limits. Batch operations are capped at 25 items.
-
-**No network listener.** The MCP binary communicates exclusively over stdio. It never calls `net.Listen`.
 
 **HTTP hardening.** TLS 1.2 minimum, authorization header stripped on cross-host redirects, redirect loop cap of 10.
 
@@ -66,7 +56,7 @@ Input validation (IDs, titles, content, batch sizes, profile names) and HTTP tra
 
 **Operation-aware retry.** The client categorizes each request as `SafeRead`, `IdempotentWrite`, or `NonIdempotentWrite`. Reads retry on 429, 5xx, and transport errors. Idempotent writes retry on 429 and 5xx. Non-idempotent writes (POST to create, DELETE) never retry. Backoff is exponential with jitter, capped at 10s, and respects `Retry-After` headers.
 
-**Failure modes.** 401 responses immediately surface as `ErrUnauthorized` with a clear message to re-run `ticktick-auth`. Batch operations validate all items before executing any, and return per-item results so callers can see which items succeeded and which failed.
+**Failure modes.** 401 responses immediately surface as `ErrUnauthorized` with a clear message to re-run `ticktick-mcp auth`. Batch operations validate all items before executing any, and return per-item results so callers can see which items succeeded and which failed.
 
 ## Key Design Decisions
 
@@ -97,5 +87,4 @@ Input validation (IDs, titles, content, batch sizes, profile names) and HTTP tra
 13. `internal/server/handlers_project.go` -- project handlers
 14. `internal/server/handlers_filter.go` -- filter/search handlers
 15. `internal/server/handlers_batch.go` -- batch operation handlers
-16. `cmd/ticktick-mcp/main.go` -- MCP entrypoint
-17. `cmd/ticktick-auth/main.go` -- auth entrypoint
+16. `cmd/ticktick-mcp/main.go` -- entry point (server + auth subcommand)

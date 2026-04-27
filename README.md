@@ -13,25 +13,36 @@ A Go MCP server for TickTick task management.
 - **Rate limiting** -- 10 req/s with burst of 20, applied before all outbound calls
 - **Multi-profile** -- separate credentials per TickTick account
 
+## Install
+
+```bash
+go install github.com/YoloWingPixie/ticktick-mcp-go/cmd/ticktick-mcp@latest
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/YoloWingPixie/ticktick-mcp-go.git
+cd ticktick-mcp-go
+task build
+```
+
 ## Quick Start
 
 ```bash
-# 1. Build
-task build
-
-# 2. Register an app at the TickTick developer portal
+# 1. Register an app at the TickTick developer portal
 #    https://developer.ticktick.com/manage
 #    Set the redirect URL to http://127.0.0.1:8000/callback
 
-# 3. Export your credentials
+# 2. Export your credentials
 export TICKTICK_CLIENT_ID="your-client-id"
 export TICKTICK_CLIENT_SECRET="your-client-secret"
 
-# 4. Authenticate (opens browser)
-./bin/ticktick-auth
+# 3. Authenticate (opens browser)
+ticktick-mcp auth
 
-# 5. Verify
-./bin/ticktick-mcp --healthcheck
+# 4. Verify
+ticktick-mcp --healthcheck
 ```
 
 ## Claude Desktop Configuration
@@ -42,7 +53,7 @@ export TICKTICK_CLIENT_SECRET="your-client-secret"
 {
   "mcpServers": {
     "ticktick": {
-      "command": "/path/to/ticktick-mcp",
+      "command": "ticktick-mcp",
       "env": {
         "TICKTICK_CLIENT_ID": "your-client-id",
         "TICKTICK_CLIENT_SECRET": "your-client-secret"
@@ -58,7 +69,7 @@ export TICKTICK_CLIENT_SECRET="your-client-secret"
 {
   "mcpServers": {
     "ticktick-work": {
-      "command": "/path/to/ticktick-mcp",
+      "command": "ticktick-mcp",
       "args": ["--profile", "work"],
       "env": {
         "TICKTICK_CLIENT_ID": "your-client-id",
@@ -66,7 +77,7 @@ export TICKTICK_CLIENT_SECRET="your-client-secret"
       }
     },
     "ticktick-personal": {
-      "command": "/path/to/ticktick-mcp",
+      "command": "ticktick-mcp",
       "args": ["--profile", "personal", "--read-only"],
       "env": {
         "TICKTICK_CLIENT_ID": "your-client-id",
@@ -85,7 +96,7 @@ Add a keyring passphrase since there is no D-Bus/keychain:
 {
   "mcpServers": {
     "ticktick": {
-      "command": "/path/to/ticktick-mcp",
+      "command": "ticktick-mcp",
       "env": {
         "TICKTICK_CLIENT_ID": "your-client-id",
         "TICKTICK_CLIENT_SECRET": "your-client-secret",
@@ -113,7 +124,7 @@ Add a keyring passphrase since there is no D-Bus/keychain:
 | `--whoami` | | Print profile name and exit |
 | `--list-profiles` | | List stored profiles and exit |
 
-### ticktick-auth
+### ticktick-mcp auth
 
 | Flag | Default | Description |
 |------|---------|-------------|
@@ -213,18 +224,16 @@ export TICKTICK_KEYRING_PASSPHRASE_FILE="$HOME/.ticktick-passphrase"
 
 | Error | Fix |
 |-------|-----|
-| `no credentials found` | Run `ticktick-auth` to authenticate |
+| `no credentials found` | Run `ticktick-mcp auth` to authenticate |
 | `encrypted file keyring requires a passphrase` | Set `TICKTICK_KEYRING_PASSPHRASE` or `TICKTICK_KEYRING_PASSPHRASE_FILE` |
 | `passphrase file is accessible by other users` | Run `chmod 600` on the passphrase file |
-| `unauthorized` / `token may be expired` | Re-run `ticktick-auth` to get a fresh token |
+| `unauthorized` / `token may be expired` | Re-run `ticktick-mcp auth` to get a fresh token |
 | WSL2: no keychain available | Use the passphrase environment variable or passphrase file (see above) |
 
 ## Building
 
 ```bash
-task build          # Build both binaries to bin/
-task build-mcp      # Build ticktick-mcp only
-task build-auth     # Build ticktick-auth only
+task build          # Build binary to bin/
 task test           # Run tests with race detector
 task lint           # Run golangci-lint
 task vuln           # Run govulncheck

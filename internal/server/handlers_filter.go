@@ -7,8 +7,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/zachshepherd/ticktick-mcp-go/internal/safety"
-	"github.com/zachshepherd/ticktick-mcp-go/internal/ticktick"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/safety"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/ticktick"
 )
 
 func parseTickTickDate(s string) (time.Time, error) {

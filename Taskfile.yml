@@ -7,18 +7,9 @@ vars:
 
 tasks:
   build:
-    desc: Build both binaries
-    deps: [build-mcp, build-auth]
-
-  build-mcp:
-    desc: Build the MCP server binary
+    desc: Build the binary
     cmds:
       - CGO_ENABLED=0 go build -trimpath -ldflags="{{.LDFLAGS}}" -o bin/ticktick-mcp ./cmd/ticktick-mcp
-
-  build-auth:
-    desc: Build the auth binary
-    cmds:
-      - CGO_ENABLED=0 go build -trimpath -ldflags="{{.LDFLAGS}}" -o bin/ticktick-auth ./cmd/ticktick-auth
 
   test:
     desc: Run tests with race detection and coverage

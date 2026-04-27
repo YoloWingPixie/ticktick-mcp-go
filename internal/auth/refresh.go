@@ -35,7 +35,7 @@ func (p *PersistingTokenSource) Token() (*oauth2.Token, error) {
 
 	tok, err := p.source.Token()
 	if err != nil {
-		return nil, fmt.Errorf("token refresh failed, re-run ticktick-auth: %w", err)
+		return nil, fmt.Errorf("token refresh failed, re-run `ticktick-mcp auth`: %w", err)
 	}
 
 	if saveErr := p.store.Save(OAuth2ToTokenData(tok)); saveErr != nil {

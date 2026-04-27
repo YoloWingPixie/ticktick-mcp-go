@@ -11,7 +11,7 @@ import (
 
 	lru "github.com/hashicorp/golang-lru/v2"
 
-	"github.com/zachshepherd/ticktick-mcp-go/internal/ticktick"
+	"github.com/YoloWingPixie/ticktick-mcp-go/internal/ticktick"
 )
 
 // newTestServer creates a minimal Server (without MCP tool registration)

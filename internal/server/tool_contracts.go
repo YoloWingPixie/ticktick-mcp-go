@@ -1,6 +1,6 @@
 package server
 
-import "github.com/zachshepherd/ticktick-mcp-go/internal/ticktick"
+import "github.com/YoloWingPixie/ticktick-mcp-go/internal/ticktick"
 
 type GetProjectsInput struct{}
 
